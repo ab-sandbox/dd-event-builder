@@ -13,6 +13,41 @@ const sourceJson = `{
   ]
 }`;
 
+function buildReport(services, guideChecked, audioChecked, catalogChecked) {
+  const selectedIds = [];
+
+  if (guideChecked) {
+    selectedIds.push("guide");
+  }
+
+  if (audioChecked) {
+    selectedIds.push("audio");
+  }
+
+  if (catalogChecked) {
+    selectedIds.push("catalog");
+  }
+
+  const items = services
+    .filter((service) => selectedIds.includes(service.id))
+    .map((service) => {
+      const { title, price } = service;
+
+      return {
+        title: title.trim(),
+        price,
+      };
+    });
+
+  const total = items.reduce((sum, item) => sum + item.price, 0);
+
+  return {
+    count: items.length,
+    total,
+    items,
+  };
+}
+
 const title = document.querySelector("#event-title");
 const date = document.querySelector("#event-date");
 const place = document.querySelector("#event-place");
@@ -45,3 +80,6 @@ try {
 
   form.hidden = true;
 }
+
+console.log(buildReport(data.services, true, false, true));
+console.log(buildReport(data.services, false, false, false));
