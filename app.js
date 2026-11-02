@@ -58,6 +58,14 @@ const program = document.querySelector("#program");
 const form = document.querySelector("#service-form");
 const dataError = document.querySelector("#data-error");
 
+const guideCheckbox = document.querySelector("#guide");
+const audioCheckbox = document.querySelector("#audio");
+const catalogCheckbox = document.querySelector("#catalog");
+
+const choiceError = document.querySelector("#choice-error");
+const result = document.querySelector("#result");
+const reportJson = document.querySelector("#report-json");
+
 let data;
 
 try {
@@ -74,12 +82,47 @@ try {
   });
 
   form.hidden = false;
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const report = buildReport(
+      data.services,
+      guideCheckbox.checked,
+      audioCheckbox.checked,
+      catalogCheckbox.checked,
+    );
+
+    if (report.count === 0) {
+      choiceError.textContent = "Выберите хотя бы одну услугу.";
+      choiceError.hidden = false;
+
+      result.hidden = true;
+      reportJson.hidden = true;
+      return;
+    }
+
+    choiceError.hidden = true;
+
+    const serviceTitles = report.items.map((item) => item.title).join("<br>");
+
+    result.innerHTML =
+      `Выбрано услуг: ${report.count}<br>` +
+      `Итого: ${report.total} руб.<br>` +
+      serviceTitles;
+
+    const json = JSON.stringify(report);
+
+    JSON.parse(json);
+
+    reportJson.textContent = json;
+
+    result.hidden = false;
+    reportJson.hidden = false;
+  });
 } catch (error) {
   dataError.textContent = "Ошибка данных.";
   dataError.hidden = false;
 
   form.hidden = true;
 }
-
-console.log(buildReport(data.services, true, false, true));
-console.log(buildReport(data.services, false, false, false));
